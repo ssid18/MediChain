@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medi Chain</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+      .hero-gradient {
+        background-image: radial-gradient(ellipse 80% 50% at 50% -20%,rgba(120,119,198,0.3),hsla(0,0%,100%,0));
+      }
+
+      /* START: REWRITTEN AUTH PAGE STYLES */
+      .auth-container {
+        position: relative;
+        overflow: hidden;
+      }
+      .form-container {
+        background-color: #1f2937; /* slate-800 */
+        position: absolute;
+        top: 0;
+        height: 100%;
+        transition: all 0.6s ease-in-out;
+      }
+      .sign-in-container {
+        left: 0;
+        width: 50%;
+        z-index: 2;
+      }
+      .auth-container.right-panel-active .sign-in-container {
+        transform: translateX(100%);
+        z-index: 1;
+      }
+      .sign-up-container {
+        left: 0;
+        width: 50%;
+        opacity: 0;
+        z-index: 1;
+      }
+      .auth-container.right-panel-active .sign-up-container {
+        transform: translateX(100%);
+        opacity: 1;
+        z-index: 5;
+        animation: show 0.6s;
+      }
+      @keyframes show {
+        0%, 49.99% {
+          opacity: 0;
+          z-index: 1;
+        }
+        50%, 100% {
+          opacity: 1;
+          z-index: 5;
+        }
+      }
+      .overlay-container {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        transition: transform 0.6s ease-in-out;
+        z-index: 100;
+      }
+      .auth-container.right-panel-active .overlay-container{
+        transform: translateX(-100%);
+      }
+      .overlay {
+        background: -webkit-linear-gradient(to right, #8b5cf6, #6d28d9);
+        background: linear-gradient(to right, #8b5cf6, #6d28d9);
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: 0 0;
+        color: #FFFFFF;
+        position: relative;
+        left: -100%;
+        height: 100%;
+        width: 200%;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+      }
+      .auth-container.right-panel-active .overlay {
+        transform: translateX(50%);
+      }
+      .overlay-panel {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 40px;
+        text-align: center;
+        top: 0;
+        height: 100%;
+        width: 50%;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+      }
+      .overlay-left {
+        transform: translateX(-20%);
+      }
+      .auth-container.right-panel-active .overlay-left {
+        transform: translateX(0);
+      }
+      .overlay-right {
+        right: 0;
+        transform: translateX(0);
+      }
+      .auth-container.right-panel-active .overlay-right {
+        transform: translateX(20%);
+      }
+      /* END: REWRITTEN AUTH PAGE STYLES */
+
+      /* START: Flip Card Animation */
+      .group:hover .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+      .flip-card-inner {
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+      }
+      .flip-card-front, .flip-card-back {
+        -webkit-backface-visibility: hidden; /* Safari */
+        backface-visibility: hidden;
+      }
+      .flip-card-back {
+        transform: rotateY(180deg);
+      }
+      /* END: Flip Card Animation */
+
+      /* START: 3D Orbiting Carousel */
+      .carousel-container {
+        min-height: 24rem; /* h-96 */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .scene {
+        perspective: 1200px;
+      }
+
+      .carousel {
+        width: 256px; /* w-64 */
+        height: 112px; /* h-28 */
+        position: relative;
+        transform-style: preserve-3d;
+      }
+
+      .animate-orbit {
+        animation: orbit 40s linear infinite;
+      }
+
+      @keyframes orbit {
+        from { transform: rotateY(0deg); }
+        to { transform: rotateY(360deg); }
+      }
+
+      .carousel-container:hover .carousel {
+        animation-play-state: paused;
+      }
+
+      .carousel-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+      }
+
+      /* The child div of carousel-card holds the HeroCard component */
+      .carousel-card > div {
+          transition: transform 0.5s ease, opacity 0.5s ease;
+      }
+
+      .carousel-container:hover .carousel-card > div {
+          opacity: 0.4;
+      }
+
+      .carousel-container:hover .carousel-card:hover > div {
+          transform: scale(1.15) translateZ(40px);
+          opacity: 1;
+      }
+      /* END: 3D Orbiting Carousel */
+
+      /* START: Feature Scroller Animation */
+      @keyframes scroll {
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      .animate-scroll {
+        animation: scroll 60s linear infinite;
+      }
+      /* END: Feature Scroller Animation */
+
+      /* START: Scrollytelling Styles */
+      .sticky-panel {
+        position: sticky;
+        top: 8rem; /* Should be roughly header height + some padding */
+        height: calc(100vh - 10rem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      @keyframes scale-in {
+        from {
+          transform: scale(0.9) translateY(10px);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1) translateY(0);
+          opacity: 1;
+        }
+      }
+      /* END: Scrollytelling Styles */
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-area, #printable-area * {
+          visibility: visible;
+        }
+        #printable-area {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+            display: none;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
+    "react": "https://esm.sh/react@^19.1.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.13.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.8.0",
+    "recharts": "https://esm.sh/recharts@^3.1.2",
+    "react/": "https://esm.sh/react@^19.1.1/",
+    "dexie": "https://esm.sh/dexie@^4.0.7",
+    "dexie-react-hooks": "https://esm.sh/dexie-react-hooks@^1.1.7",
+    "qrcode": "https://esm.sh/qrcode@^1.5.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-900 text-slate-300">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

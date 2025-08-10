@@ -1,0 +1,8 @@
+{
+  "name": "Medi Chain",
+  "description": "An AI-powered prescription validation system using a simulated blockchain for tamper-proof verification, designed to combat fraud and improve traceability in healthcare.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}
