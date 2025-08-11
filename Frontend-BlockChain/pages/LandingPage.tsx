@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../App';
 import { 
     APP_NAME, 
@@ -39,14 +39,12 @@ const HeroCard: React.FC<{ icon: React.ReactNode; title: string; subtitle: strin
 const PillarCard: React.FC<{ icon: React.ReactNode; title: string; description: string; }> = ({ icon, title, description }) => (
     <div className="group h-64 [perspective:1000px]">
         <div className="flip-card-inner relative h-full w-full rounded-xl shadow-xl">
-            {/* Front */}
             <div className="flip-card-front absolute flex flex-col items-center justify-center h-full w-full rounded-xl bg-slate-800 p-6 border border-slate-700/80">
                 <div className="p-3 bg-slate-700 rounded-full mb-4">
                     {icon}
                 </div>
                 <h3 className="mt-2 text-xl font-bold text-white text-center">{title}</h3>
             </div>
-            {/* Back */}
             <div className="flip-card-back absolute flex flex-col items-center justify-center h-full w-full rounded-xl bg-violet-800 p-6 border border-violet-700 text-center">
                 <p className="text-slate-200">{description}</p>
             </div>
@@ -134,9 +132,27 @@ const InteractiveHowItWorks: React.FC = () => {
     );
 };
 
+const Toast: React.FC<{ message: string; show: boolean; onClose: () => void }> = ({ message, show, onClose }) => {
+    useEffect(() => {
+        if (show) {
+            const timer = setTimeout(onClose, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [show, onClose]);
+    if (!show) return null;
+    return (
+        <div className="w-full bg-violet-700 text-white px-6 py-3 border-b border-violet-400 flex items-center justify-center gap-3 animate-fade-in">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <span className="font-semibold">{message}</span>
+            <button onClick={onClose} className="ml-4 text-violet-200 hover:text-white focus:outline-none">✕</button>
+        </div>
+    );
+};
 
 const LandingPage: React.FC = () => {
     const authContext = useContext(AuthContext);
+    const navigate = useNavigate();
+    const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
     const allHeroCards = [
         { icon: <UserIcon className="w-6 h-6 text-violet-400"/>, title: 'Verified Doctor', subtitle: 'Dr. Priya Sharma' },
@@ -148,7 +164,36 @@ const LandingPage: React.FC = () => {
         { icon: <CpuChipIcon className="w-6 h-6 text-violet-400"/>, title: 'Advanced OCR', subtitle: 'Reads handwriting' },
         { icon: <LockClosedIcon className="w-6 h-6 text-violet-400"/>, title: 'Data Privacy', subtitle: 'Secure by design' },
     ];
-    
+
+    const [carouselAngle, setCarouselAngle] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const autoRotateRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        if (!isHovered) {
+            autoRotateRef.current = setInterval(() => {
+                setCarouselAngle((prev) => prev + 0.3);
+            }, 16);
+        } else if (autoRotateRef.current) {
+            clearInterval(autoRotateRef.current);
+        }
+        return () => {
+            if (autoRotateRef.current) clearInterval(autoRotateRef.current);
+        };
+    }, [isHovered]);
+
+    const handleCarouselMouseEnter = () => setIsHovered(true);
+    const handleCarouselMouseLeave = () => setIsHovered(false);
+
+    const handleCardClick = (card: typeof allHeroCards[number]) => {
+        if (!authContext?.user) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setToast({ show: true, message: 'Please sign up or log in to access this feature!' });
+            setTimeout(() => navigate('/auth'), 3000);
+        } else {
+            alert(`Selected: ${card.title} - You can now access this feature!`);
+        }
+    };
 
     const featureScrollerItems = [
         { icon: <CpuChipIcon className="w-5 h-5 text-violet-400"/>, text: "AI-Powered Extraction" },
@@ -169,7 +214,14 @@ const LandingPage: React.FC = () => {
 
     return (
         <div className="animate-fade-in w-full">
-            {/* Hero Section */}
+            {toast.show && (
+                <div className="fixed top-0 left-0 right-0 bg-violet-700 text-white px-6 py-3 border-b border-violet-400 flex items-center justify-center gap-3 animate-fade-in z-[60]">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <span className="font-semibold">{toast.message}</span>
+                    <button onClick={() => setToast({ show: false, message: '' })} className="ml-4 text-violet-200 hover:text-white focus:outline-none">✕</button>
+                </div>
+            )}
+            
             <section id="hero" className="relative pt-24 pb-20 overflow-hidden hero-gradient">
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-3xl mx-auto text-center">
@@ -199,10 +251,12 @@ const LandingPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 3D Orbiting Carousel */}
                     <div className="mt-12 carousel-container">
-                        <div className="scene">
-                            <div className="carousel animate-orbit">
+                        <div className="scene"
+                            onMouseEnter={handleCarouselMouseEnter}
+                            onMouseLeave={handleCarouselMouseLeave}
+                        >
+                            <div className="carousel" style={{ transform: `rotateY(${carouselAngle}deg)` }}>
                                 {allHeroCards.map((card, index) => {
                                     const angle = index * (360 / allHeroCards.length);
                                     const radius = 330; 
@@ -210,7 +264,16 @@ const LandingPage: React.FC = () => {
                                         transform: `rotateY(${angle}deg) translateZ(${radius}px)`
                                     };
                                     return (
-                                        <div className="carousel-card" style={style} key={index}>
+                                        <div
+                                            className="carousel-card"
+                                            style={style}
+                                            key={index}
+                                            tabIndex={0}
+                                            role="button"
+                                            onClick={() => handleCardClick(card)}
+                                            onFocus={handleCarouselMouseEnter}
+                                            onBlur={handleCarouselMouseLeave}
+                                        >
                                             <div>
                                                 <HeroCard {...card} />
                                             </div>
@@ -220,10 +283,21 @@ const LandingPage: React.FC = () => {
                             </div>
                         </div>
                     </div>
+                    
+                    <div className="flex justify-center mt-8">
+                        <button
+                            onClick={() => window.scrollTo({ top: window.scrollY + 800, behavior: 'smooth' })}
+                            className="w-16 h-16 flex items-center justify-center rounded-full bg-violet-600 hover:bg-violet-700 text-white shadow-lg border-4 border-violet-300 transition-all hover:scale-105 hover:shadow-xl"
+                            title="Scroll down to see more content"
+                        >
+                            <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
+                                <path d="M16 4V28M16 28L8 20M16 28L24 20" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </section>
             
-            {/* Feature Scroller Section */}
             <section id="features" className="py-20 bg-slate-900">
                 <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
                     <div className="flex w-max animate-scroll">
@@ -239,7 +313,6 @@ const LandingPage: React.FC = () => {
 
             <InteractiveHowItWorks />
             
-            {/* Core Pillars Section */}
             <section id="technology" className="py-24">
                 <div className="container mx-auto px-4">
                     <div className="text-center">
@@ -254,7 +327,6 @@ const LandingPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Footer */}
             <footer className="bg-slate-900/80 border-t border-slate-700/50">
                 <div className="container mx-auto px-8 py-12">
                     <div className="flex flex-col md:flex-row justify-between items-center">

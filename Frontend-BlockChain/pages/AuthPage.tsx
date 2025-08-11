@@ -83,7 +83,6 @@ const PharmacistSignUpPrompt: React.FC = () => {
     );
 };
 
-
 const GhostButton: React.FC<{ onClick: () => void, children: React.ReactNode }> = ({ onClick, children }) => (
     <button onClick={onClick} className={`px-10 py-2 rounded-full bg-transparent border-2 border-white text-white font-bold uppercase tracking-wider transition-transform hover:scale-105 focus:outline-none`}>
       {children}
@@ -108,7 +107,7 @@ const AuthPage: React.FC = () => {
             <button onClick={() => setRole('pharmacist')} className={getRoleButtonClass('pharmacist')}>Pharmacist</button>
         </div>
 
-        <div className={`auth-container w-full h-[650px] rounded-3xl shadow-2xl bg-slate-800 ${isSignUpActive ? 'right-panel-active' : ''}`}>
+        <div className={`auth-container w-full h-[650px] rounded-3xl shadow-2xl bg-slate-800 relative z-30 ${isSignUpActive ? 'right-panel-active' : ''}`}>
             <div className="form-container sign-up-container">
                 {role === 'doctor' ? <DoctorSignUpPrompt /> : <PharmacistSignUpPrompt />}
             </div>
