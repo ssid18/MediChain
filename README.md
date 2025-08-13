@@ -43,7 +43,7 @@ MediChain combines AI-based prescription data extraction with blockchain storage
 
 ## 🛠️ Tech Stack
 
-**Frontend:** React.js, Tailwind CSS, qrcode.react  
+**Frontend:** Typescript, Tailwind CSS, qrcode.react  
 **Backend:** Node.js, Express.js  
 **Database:** MongoDB  
 **Blockchain:** Solidity, Polygon Mumbai Testnet, Ethers.js, MetaMask  
@@ -90,7 +90,7 @@ medichain/
 ## 👥 Built by Team Void
 
 - **@ssid18** – AI & Blockchain Integration  
-- **@Dakshx07** – Frontend Development  
+- **@Dakshx07** – Frontend Development & UI  
 - **@lakshitsoni26** – Backend & API Development  
 
 ---
