@@ -48,19 +48,26 @@ class AuthService {
   }
   
   async login(username: string, password: string): Promise<User> {
+    console.log(`Attempting login for username: ${username}`);
     const users = this.getUsers();
+    console.log(`Total users in database: ${users.length}`);
+    
     const userRecord = users.find(u => u.username.toLowerCase() === username.toLowerCase());
     
     if (!userRecord) {
+        console.error(`User not found: ${username}`);
         throw new Error('User not found. Please check your username or sign up.');
     }
 
+    console.log(`User found: ${userRecord.username}, role: ${userRecord.role}`);
     const passwordHash = await hashPassword(password);
 
     if (userRecord.passwordHash !== passwordHash) {
+        console.error(`Password mismatch for user: ${username}`);
         throw new Error('Invalid password.');
     }
     
+    console.log(`Login successful for user: ${username}, role: ${userRecord.role}`);
     // Return a clean user object without the password hash
     const { passwordHash: _, ...sessionUser } = userRecord;
     sessionStorage.setItem(SESSION_USER_KEY, JSON.stringify(sessionUser));
@@ -106,20 +113,27 @@ class AuthService {
   }
 
   async registerPharmacist(data: PharmacistRegistrationData): Promise<void> {
+    console.log('Starting pharmacist registration...', { username: data.username, pharmacyName: data.pharmacyName });
     const { username, password, pharmacyLicenseNumber, governmentId } = data;
     if (!username || !password || !pharmacyLicenseNumber || !governmentId) {
+        console.error('Missing required fields:', { username: !!username, password: !!password, pharmacyLicenseNumber: !!pharmacyLicenseNumber, governmentId: !!governmentId });
         throw new Error('Missing required pharmacist registration details.');
     }
 
     // Verify details first
     if(!pharmacyLicenseNumber || !governmentId) {
+        console.error('License or Government ID missing');
         throw new Error('Pharmacy License and Government ID are required for verification.');
     }
+    
+    console.log('Verifying pharmacist details...');
     await verificationService.verifyPharmacistDetails({ pharmacyLicenseNumber, governmentId });
+    console.log('Verification successful');
 
     const users = this.getUsers();
     const existingUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
     if (existingUser) {
+        console.error('Username already exists:', username);
         throw new Error('Username is already taken. Please choose another one.');
     }
     
@@ -139,7 +153,9 @@ class AuthService {
       physicalAddress: data.physicalAddress,
     };
 
+    console.log('Creating new pharmacist user:', { id: newUser.id, username: newUser.username, role: newUser.role });
     this.saveUsers([...users, newUser]);
+    console.log('Pharmacist registration completed successfully');
     // Does not log in, user must go to login page.
   }
 

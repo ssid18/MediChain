@@ -11,6 +11,15 @@ const VALID_DOCTOR_LICENSE_NUMBERS = [
     'PED-55555-FL',
 ];
 
+// Add valid pharmacist license numbers for demo purposes
+const VALID_PHARMACIST_LICENSE_NUMBERS = [
+    'PHAR-12345',
+    'PHAR-67890',
+    'PHAR-11111',
+    'PHAR-22222',
+    'PHAR-33333',
+];
+
 interface DoctorDetails {
     licenseNumber: string;
     governmentId: string;
@@ -41,16 +50,17 @@ class VerificationService {
     console.log(`Verifying doctor details...`, details);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const isLicenseValid = /^\d{6,10}$/.test(details.licenseNumber);
-    const isGovIdValid = /^(\d{12}|[A-Z]{5}[0-9]{4}[A-Z]{1})$/.test(details.governmentId);
+    // More lenient validation for demo purposes
+    const isLicenseValid = details.licenseNumber.trim().length >= 3;
+    const isGovIdValid = details.governmentId.trim().length >= 8;
 
     if (isLicenseValid && isGovIdValid) {
         console.log('Doctor details appear valid.');
         return;
     } else {
         const errorMessages = [];
-        if (!isLicenseValid) errorMessages.push('Medical License must be 6-10 digits.');
-        if (!isGovIdValid) errorMessages.push('Government ID format is invalid (Aadhaar/PAN).');
+        if (!isLicenseValid) errorMessages.push('Medical License must be at least 3 characters long.');
+        if (!isGovIdValid) errorMessages.push('Government ID must be at least 8 characters long.');
         throw new Error(errorMessages.join(' '));
     }
   }
@@ -59,17 +69,17 @@ class VerificationService {
     console.log(`Verifying pharmacist details...`, details);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Simple mock validation for demonstration purposes
-    const isLicenseValid = /^\d{6,10}$/.test(details.pharmacyLicenseNumber);
-    const isGovIdValid = /^(\d{12}|[A-Z]{5}[0-9]{4}[A-Z]{1})$/.test(details.governmentId);
+    // More lenient validation for demo purposes - allow any reasonable format
+    const isLicenseValid = details.pharmacyLicenseNumber.trim().length >= 3;
+    const isGovIdValid = details.governmentId.trim().length >= 8;
 
     if (isLicenseValid && isGovIdValid) {
         console.log('Pharmacist details appear valid.');
         return;
     } else {
         const errorMessages = [];
-        if (!isLicenseValid) errorMessages.push('Pharmacy License format is invalid.');
-        if (!isGovIdValid) errorMessages.push('Government ID format is invalid.');
+        if (!isLicenseValid) errorMessages.push('Pharmacy License must be at least 3 characters long.');
+        if (!isGovIdValid) errorMessages.push('Government ID must be at least 8 characters long.');
         throw new Error(errorMessages.join(' '));
     }
   }

@@ -36,11 +36,14 @@ const PharmacistSignUpPage: React.FC = () => {
             case 'email':
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? '' : 'Invalid email address.';
             case 'phoneNumber':
-                return /^\+91\d{10}$/.test(value) ? '' : 'Must be in +91XXXXXXXXXX format.';
+                // More lenient phone validation - allow various formats
+                return /^[\+]?[0-9\s\-\(\)]{10,15}$/.test(value) ? '' : 'Phone number must be 10-15 digits with optional +, spaces, dashes, or parentheses.';
             case 'pharmacyLicenseNumber':
-                return /^\d{6,10}$/.test(value) ? '' : 'Must be 6-10 digits.';
+                // More lenient license validation - allow alphanumeric
+                return value.trim().length >= 3 ? '' : 'License number must be at least 3 characters long.';
             case 'governmentId':
-                return /^(\d{12}|[A-Z]{5}[0-9]{4}[A-Z]{1})$/.test(value) ? '' : 'Invalid Aadhaar (12 digits) or PAN format.';
+                // More lenient government ID validation
+                return value.trim().length >= 8 ? '' : 'Government ID must be at least 8 characters long.';
              case 'password':
                 return value.length >= 6 ? '' : 'Password must be at least 6 characters.';
             case 'confirmPassword':
@@ -87,7 +90,9 @@ const PharmacistSignUpPage: React.FC = () => {
         try {
             const { confirmPassword, ...registrationData } = formData;
             await authContext?.registerPharmacist(registrationData);
-            alert('Signup successful! Please proceed to log in.');
+            setApiError(''); // Clear any previous errors
+            // Show success message and redirect
+            alert(`Registration successful! Welcome ${formData.fullName}!\n\nYou can now sign in with your username: ${formData.username} and password.`);
             navigate('/auth');
         } catch (err: any) {
             setApiError(err.message || 'Verification failed. Please check your details and try again.');
@@ -103,9 +108,9 @@ const PharmacistSignUpPage: React.FC = () => {
             confirmPassword: 'password123',
             fullName: 'Mr. Pharma Demo',
             pharmacyName: 'Demo Pharmacy',
-            pharmacyLicenseNumber: '87654321',
+            pharmacyLicenseNumber: 'PHAR-12345',
             governmentId: '123456789012',
-            phoneNumber: '+919123456789',
+            phoneNumber: '+91 98765 43210',
             email: 'pharma.demo@medichain.com',
             physicalAddress: '456 Demo Avenue, Pharma Town',
         });
@@ -163,12 +168,12 @@ const PharmacistSignUpPage: React.FC = () => {
                 </div>
                  <div>
                   <label htmlFor="pharmacyLicenseNumber" className="block text-sm font-medium text-slate-300 mb-1">Pharmacy License No.</label>
-                  <input type="text" name="pharmacyLicenseNumber" id="pharmacyLicenseNumber" placeholder="e.g., 12345678" value={formData.pharmacyLicenseNumber} onChange={handleChange} onBlur={handleBlur} className={inputClass('pharmacyLicenseNumber')} required />
+                  <input type="text" name="pharmacyLicenseNumber" id="pharmacyLicenseNumber" placeholder="e.g., PHAR-12345" value={formData.pharmacyLicenseNumber} onChange={handleChange} onBlur={handleBlur} className={inputClass('pharmacyLicenseNumber')} required />
                   {errors.pharmacyLicenseNumber && <p className="mt-1 text-xs text-red-400">{errors.pharmacyLicenseNumber}</p>}
                 </div>
                  <div>
                   <label htmlFor="governmentId" className="block text-sm font-medium text-slate-300 mb-1">Government ID (Aadhaar/PAN)</label>
-                  <input type="text" name="governmentId" id="governmentId" value={formData.governmentId} onChange={handleChange} onBlur={handleBlur} className={inputClass('governmentId')} required />
+                  <input type="text" name="governmentId" id="governmentId" placeholder="e.g., 123456789012 or ABCDE1234F" value={formData.governmentId} onChange={handleChange} onBlur={handleBlur} className={inputClass('governmentId')} required />
                    {errors.governmentId && <p className="mt-1 text-xs text-red-400">{errors.governmentId}</p>}
                 </div>
                 <div>
@@ -178,7 +183,7 @@ const PharmacistSignUpPage: React.FC = () => {
                 </div>
                  <div>
                   <label htmlFor="phoneNumber" className="block text-sm font-medium text-slate-300 mb-1">Phone Number</label>
-                  <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="+919876543210" value={formData.phoneNumber} onChange={handleChange} onBlur={handleBlur} className={inputClass('phoneNumber')} required />
+                  <input type="tel" name="phoneNumber" id="phoneNumber" placeholder="+91 98765 43210" value={formData.phoneNumber} onChange={handleChange} onBlur={handleBlur} className={inputClass('phoneNumber')} required />
                   {errors.phoneNumber && <p className="mt-1 text-xs text-red-400">{errors.phoneNumber}</p>}
                 </div>
               </div>
